@@ -1,11 +1,16 @@
 from pydantic import BaseModel, Field, HttpUrl, EmailStr
 from typing import Optional
+from enum import Enum
 
+class UserType(str, Enum):
+    admin = "admin"
+    user = "user"
+    organization = "organization"
 
 class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
-    role: str = Field(..., pattern=r'^(admin|user)$')
+    role: UserType
     id: Optional[str] = None
 
 class UserCreate(UserBase):
