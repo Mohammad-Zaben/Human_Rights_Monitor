@@ -26,6 +26,9 @@ class UserCreate(UserBase):
                 "username": "johndoe",
                 "email": "johndoe@example.com",
                 "role": "user",
+                "phone": "1234567890",
+                "preferred_contact_method": "email",
+                "organization_name": "Example Organization",
                 "password": "securepassword123"
             }
         }
