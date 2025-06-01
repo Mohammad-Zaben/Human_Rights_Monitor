@@ -28,8 +28,8 @@ class CaseBase(BaseModel):
     victims: List[str]  # ObjectId as str
     perpetrators: List[Perpetrator]
     created_by: str  # ObjectId as str
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 class CaseCreate(CaseBase):
     pass  # same as CaseBase, you can customize if needed
