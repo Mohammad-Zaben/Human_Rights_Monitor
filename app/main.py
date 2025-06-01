@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from app.database import Database
-from app.routes import users, auth, cases, incident_report, victim_witness
+from app.routes import users, auth ,cases, evidence
 
 # إعداد التسجيل
 logging.basicConfig(
@@ -44,8 +44,6 @@ async def root():
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(cases.router)
-app.include_router(incident_report.router)
-app.include_router(victim_witness.router)
 
 if __name__ == "__main__":
     import uvicorn
