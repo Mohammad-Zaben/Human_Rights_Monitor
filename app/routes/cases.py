@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status,Form,UploadFile,File, Depends
+from fastapi import APIRouter, HTTPException, status,Form,UploadFile,File, Depends,Query
 from app.database import get_collection
 from app.models.cases import CaseBase, CaseResponse
 from app.routes.evidence import create_evidence
@@ -27,7 +27,7 @@ async def create_case(
 
     try:
         case_data = json.loads(case_model)
-        case = CaseBase(**case_data)  # Apply Pydantic validation here
+        case = CaseBase(**case_data)  # do the validation her ,because the pydantic with Form data does not work
     except (json.JSONDecodeError, ValidationError) as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -57,6 +57,86 @@ async def create_case(
         )
     case_data["_id"] = str(result.inserted_id)
     return CaseResponse(**case_data)
+
+@router.get("/{case_id}", response_model=CaseResponse, summary="Get a case by ID")
+async def get_case(case_id: str, current_user: str = Depends(get_current_user)):
+    # if not current_user:
+    #     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing JWT token")
+
+    cases_collection = await get_collection("cases")
+    case = await cases_collection.find_one({"case_id": case_id})
+    
+    if not case:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Case not found"
+        )
+    
+    case["_id"] = str(case["_id"])
+    return CaseResponse(**case)
+
+@router.get("/", response_model=list[CaseResponse], summary="Get all cases")
+async def get_all_cases(current_user: str = Depends(get_current_user)):
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing JWT token")
+
+    cases_collection = await get_collection("cases")
+    cases = []
+    
+    async for case in cases_collection.find():
+        case["_id"] = str(case["_id"])
+        cases.append(CaseResponse(**case))
+    
+    return cases
+
+@router.get("/search/", response_model=list[CaseResponse], summary="Search cases by field")
+async def search_cases(field: str = Query(..., description="Field to search by (e.g., 'title', 'status')"),
+                       value: str = Query(..., description="Value to search for in the specified field"),
+                       current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+
+    # Handle date fields by converting value to datetime if applicable
+    if field in ["date_occurred", "date_reported"]:
+        try:
+            value = datetime.fromisoformat(value)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Invalid date format. Use ISO 8601 format (e.g., '2025-06-01T12:00:00')."
+            )
+
+    # Query the database
+    query = {field: value}
+    cases = []
+    async for case in cases_collection.find(query):
+        case["_id"] = str(case["_id"])
+        cases.append(CaseResponse(**case))
+
+    if not cases:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No cases found matching the query."
+        )
+
+    return cases
+
+
+@router.delete("/{case_id}", summary="Delete a case by ID")
+async def delete_case(case_id: str, current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+    
+    result = await cases_collection.delete_one({"case_id": case_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Case not found"
+        )
+    
+    return {"detail": "Case deleted successfully"}
+
+
+
 
 
 
