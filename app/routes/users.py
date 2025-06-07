@@ -61,7 +61,6 @@ async def get_current_user_info(current_user = Depends(get_current_user)):
             detail="User not found"
         )
     
-    # تحويل _id من ObjectId إلى string
     user["id"] = str(user["_id"])
     del user["_id"]
     del user["hashed_password"]

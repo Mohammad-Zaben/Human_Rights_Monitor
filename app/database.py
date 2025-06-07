@@ -15,7 +15,6 @@ class Database:
             cls.client = AsyncIOMotorClient(MONGO_URI)
             cls.db = cls.client[DATABASE_NAME]
             
-            # التحقق من حالة الاتصال
             await cls.client.admin.command('ping')
             
             logger.info(f"sucssesfuly connections with database {DATABASE_NAME}")
@@ -30,7 +29,7 @@ class Database:
 
         if cls.client is not None:
             cls.client.close()
-            logger.info("تم إغلاق الاتصال بقاعدة البيانات")
+            logger.info("the connection with MongoDB closed")
             cls.client = None
             cls.db = None
 

@@ -137,6 +137,27 @@ async def delete_case(case_id: str, current_user: str = Depends(get_current_user
 
 
 
+@router.patch("/{case_id}", summary="Update case status")
+def update_case_status(case_id: str, new_status: str, current_user: str = Depends(get_current_user)):
+    collection = get_collection("cases")
+    history_collection = get_collection("case_status_history")
 
+    # Find the case using case_id
+    case = collection.find_one({"case_id": case_id})
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    # Update the case status
+    collection.update_one({"case_id": case_id}, {"$set": {"status": new_status, "updated_at": datetime.utcnow()}})
+
+    # Add to history collection
+    history_entry = {
+        "case_id": case_id,
+        "updated_status": new_status,
+        "update_date": datetime.utcnow()
+    }
+    history_collection.insert_one(history_entry)
+
+    return {"message": "Case status updated successfully", "updated_status": new_status}
 
 

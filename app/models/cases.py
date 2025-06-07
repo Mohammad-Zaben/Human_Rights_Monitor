@@ -27,7 +27,6 @@ class CaseBase(BaseModel):
     date_reported: datetime
     victims: List[str]  # ObjectId as str
     perpetrators: List[Perpetrator]
-    created_by: str  # ObjectId as str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -38,8 +37,16 @@ class CaseResponse(CaseBase):
     id: Optional[str] = Field(None, alias="_id")
     case_id: str
     evidence: Optional[List[str]] = None  # List of Evidence objects
+    created_by: str
     class Config:
         allow_population_by_field_name = True
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+
+class CaseStatusHistory(BaseModel):
+    case_id: str
+    updated_status: str
+    update_date: datetime
+    # Example usage in the database
+    # This class will represent the history of case status updates.
