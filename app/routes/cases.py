@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, status,Form,UploadFile,File, Depends,Query
 from app.database import get_collection
-from app.models.cases import CaseBase, CaseResponse
+from app.models.cases import CaseBase, CaseResponse , StatusUpdate
 from app.routes.evidence import create_evidence
 from datetime import datetime
 from app.services.id_genarator import case_generate_id
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 import json
 from app.auth.oauth import get_current_user
 
@@ -137,8 +137,9 @@ async def delete_case(case_id: str, current_user: str = Depends(get_current_user
 
 
 
+
 @router.patch("/{case_id}", summary="Update case status")
-def update_case_status(case_id: str, new_status: str, current_user: str = Depends(get_current_user)):
+def update_case_status(case_id: str, new_status: StatusUpdate, current_user: str = Depends(get_current_user)):
     collection = get_collection("cases")
     history_collection = get_collection("case_status_history")
 

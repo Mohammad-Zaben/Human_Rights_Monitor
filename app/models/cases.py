@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, HttpUrl
 from typing import List, Optional, Literal
 from datetime import datetime
 from app.models.evidence import Evidence  
+from enum import Enum
+
 class Coordinates(BaseModel):
     type: Literal["Point"]
     coordinates: List[float]  # [longitude, latitude]
@@ -16,12 +18,22 @@ class Perpetrator(BaseModel):
     type: str
 
 
+class CaseStatus(str,Enum):
+    UNDER_INVESTIGATION = "under_investigation"
+    CLOSED = "closed"
+    ESCALATED = "escalated"
+
+class PriorityLevel(Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
 class CaseBase(BaseModel):
     title: str
     description: Optional[str]
     violation_types: List[str]
-    status: Literal["under_investigation", "closed", "escalated"]
-    priority: Literal["low", "medium", "high"]
+    status: CaseStatus
+    priority: PriorityLevel
     location: Location
     date_occurred: datetime
     date_reported: datetime
@@ -50,3 +62,7 @@ class CaseStatusHistory(BaseModel):
     update_date: datetime
     # Example usage in the database
     # This class will represent the history of case status updates.
+
+
+class StatusUpdate(BaseModel):
+    new_status: CaseStatus
