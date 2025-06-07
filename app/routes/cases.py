@@ -41,6 +41,11 @@ async def create_case(
     cases_collection = await get_collection("cases")
 
     case_data = case.model_dump()
+
+    # Convert enums to strings
+    case_data["status"] = case_data["status"].value
+    case_data["priority"] = case_data["priority"].value
+
     case_data["evidence"] = images_list
     case_data["case_id"] = await case_generate_id()
     case_data["created_by"] = current_user.username
