@@ -85,6 +85,7 @@ case_model:
     },
     "date_occurred": "2025-06-01T12:00:00",
     "date_reported": "2025-06-01T12:00:00",
+    " candidate_lawyers": ["lawyer1", "lawyer2"],
     "victims": ["VW-2025-0001"],
     "perpetrators": [
         {
