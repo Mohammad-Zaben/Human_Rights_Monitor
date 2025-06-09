@@ -59,6 +59,39 @@ async def submit_incident_report(
         )
     report_data["_id"] = str(result.inserted_id)
     return IncidentReportResponse(**report_data)
+"""
+bodey example:
+report_model:
+{
+    "reporter_type": "victim",
+    "anonymous": false,
+    "contact_info": {
+        "email": "reporter@example.com",
+        "phone": "+963912345678",
+        "preferred_contact": "email"
+    },
+    "incident_details": {
+        "date": "2023-05-10T00:00:00Z",
+        "location": {
+            "country": "Yemen",
+            "city": "Taiz",
+            "coordinates": {
+                "type": "Point",
+                "coordinates": [44.0333, 13.5833]
+            }
+        },
+        "description": "Arbitrary detention of 15 civilians at checkpoint",
+        "violation_types": ["arbitrary_detention", "torture"]
+    },
+    "status": "new"
+}
+
+file example:
+images: [
+    {image1.jpg},
+    {image2.jpg}
+]
+"""
 
 @router.get("/", response_model=list[IncidentReportResponse], summary="List reports")
 async def list_reports(
@@ -85,6 +118,13 @@ async def list_reports(
 
     return reports
 
+"""
+request example:
+GET http://127.0.0.1:8000/report/?location=yemen
+"""
+
+
+
 @router.patch("/{report_id}", summary="Update report status")
 async def update_report_status(
     report_id: str,
@@ -103,6 +143,17 @@ async def update_report_status(
 
     return {"message": "Report status updated successfully", "status": update_data.status}
 
+"""
+request example:
+
+PATCH http://127.0.0.1:8000/report/IR-2025-0001
+body example:
+{
+"status" : "resolved"
+}
+the allowed status values are: "new","in_progress","resolved","closed"
+"""
+
 @router.get("/analytics", summary="Count reports by violation type")
 async def count_reports_by_violation_type(current_user: str = Depends(get_current_user)):
     reports_collection = await get_collection("incident_reports")
@@ -115,3 +166,7 @@ async def count_reports_by_violation_type(current_user: str = Depends(get_curren
     analytics = await reports_collection.aggregate(pipeline).to_list(length=None)
 
     return {"analytics": analytics}
+
+"""
+request example:
+GET http://127.0.0.1:8000/report/analytics/"""
