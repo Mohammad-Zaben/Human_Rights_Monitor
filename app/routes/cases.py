@@ -63,6 +63,40 @@ async def create_case(
     case_data["_id"] = str(result.inserted_id)
     return CaseResponse(**case_data)
 
+
+"""
+{
+    "title": "Environmental Violation",
+    "description": "Illegal dumping of hazardous waste",
+    "violation_types": ["pollution", "illegal dumping"],
+    "status": "under_investigation",
+    "priority": "high",
+    "location": {
+        "country": "CountryName",
+        "region": "RegionName",
+        "coordinates": {
+            "type": "Point",
+            "coordinates": [34.4667, 31.5000]
+        }
+    },
+    "date_occurred": "2025-06-01T12:00:00",
+    "date_reported": "2025-06-01T12:00:00",
+    "victims": ["VW-2025-0001"],
+    "perpetrators": [
+        {
+            "name": "John Doe",
+            "type": "individual"
+        },
+        {
+            "name": "XYZ Corporation",
+            "type": "organization"
+        }
+    ]
+}
+"""
+
+
+
 @router.get("/{case_id}", response_model=CaseResponse, summary="Get a case by ID")
 async def get_case(case_id: str, current_user: str = Depends(get_current_user)):
     # if not current_user:
@@ -79,6 +113,13 @@ async def get_case(case_id: str, current_user: str = Depends(get_current_user)):
     
     case["_id"] = str(case["_id"])
     return CaseResponse(**case)
+"""
+this dont need body or any data , just add the case id in the url
+Example: GET http://127.0.0.1:8000/case/HRM-2025-0002
+"""
+
+
+
 
 @router.get("/", response_model=list[CaseResponse], summary="Get all cases")
 async def get_all_cases(current_user: str = Depends(get_current_user)):
@@ -93,6 +134,13 @@ async def get_all_cases(current_user: str = Depends(get_current_user)):
         cases.append(CaseResponse(**case))
     
     return cases
+
+"""This endpoint retrieves all cases from the database.
+Example: GET http://"""
+
+
+
+
 
 @router.get("/search/", response_model=list[CaseResponse], summary="Search cases by field")
 async def search_cases(field: str = Query(..., description="Field to search by (e.g., 'title', 'status')"),
@@ -124,6 +172,11 @@ async def search_cases(field: str = Query(..., description="Field to search by (
         )
 
     return cases
+"""
+dont need body or any data , just add the field and value in the url
+Example: GET http://127.0.0.1:8000/case/search/?field=priority&value=high
+"""
+
 
 
 @router.delete("/{case_id}", summary="Delete a case by ID")
@@ -139,7 +192,8 @@ async def delete_case(case_id: str, current_user: str = Depends(get_current_user
         )
     
     return {"detail": "Case deleted successfully"}
-
+"""This endpoint deletes a case by its ID.
+Example: DELETE http://case/HRM-2025-0002"""
 
 
 
@@ -175,5 +229,12 @@ async def update_case_status(case_id: str, new_status: StatusUpdate, current_use
     await history_collection.insert_one(history_entry)
 
     return {"message": "Case status updated successfully", "updated_status": status_value}
-
+"""This endpoint updates the status of a case by its ID.
+Example: PATCH http://case/HRM-2025-0002
+Request body:
+{ 
+    "new_status": "closed"
+}
+The status can be one of the following: "new", "under_investigation", "resolved", "closed"
+"""
 
