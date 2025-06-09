@@ -65,6 +65,9 @@ async def create_case(
 
 
 """
+This file defines the routes for managing cases in the application.
+body example:
+```json
 {
     "title": "Environmental Violation",
     "description": "Illegal dumping of hazardous waste",
@@ -93,6 +96,8 @@ async def create_case(
         }
     ]
 }
+files example:
+- images: [image1.jpg, image2.png]
 """
 
 
