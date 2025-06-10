@@ -287,3 +287,16 @@ Request body:
         }
 ]
 """
+@router.get("/cases-need-lawyers", response_model=list[CaseResponse], summary="Get cases that need assigen a lawyers")
+async def get_cases_need_lawyers(current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+    
+    # Find cases that have no lawyers assigned
+    query = {"lawyers": {"$exists": False}}
+    cases = []
+    
+    async for case in cases_collection.find(query):
+        case["_id"] = str(case["_id"])
+        cases.append(CaseResponse(**case))
+    
+    return cases
