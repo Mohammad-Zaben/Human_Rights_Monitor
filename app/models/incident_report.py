@@ -58,6 +58,7 @@ class IncidentReportResponse(IncidentReportBase):
     id: Optional[str] = Field(None, alias="_id")
     report_id: str
     evidence: Optional[List[str]] = None
+    created_by: str  # user name 
     class Config:
         allow_population_by_field_name = True
         json_encoders = {
