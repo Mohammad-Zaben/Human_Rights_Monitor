@@ -246,3 +246,44 @@ Request body:
 The status can be one of the following: "new", "under_investigation", "resolved", "closed"
 """
 
+
+class Lawyer(BaseModel):
+    name: str
+
+@router.patch("/{case_id}/add-lawyers", summary="Add lawyers to a case")
+async def add_lawyer_to_case(
+    case_id: str,
+    lawyers: list[Lawyer],  # List of lawyers from the request body
+    current_user: str = Depends(get_current_user)
+):
+    cases_collection = await get_collection("cases")
+
+    # Find the case using case_id
+    case = await cases_collection.find_one({"case_id": case_id})
+
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    # Add lawyers to the case
+    update_result = await cases_collection.update_one(
+        {"case_id": case_id},
+        {"$push": {"lawyers": {"$each": [lawyer.model_dump() for lawyer in lawyers]}}}
+    )
+
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to add lawyers to the case")
+
+    return {"message": "Lawyers added successfully", "lawyers": lawyers}
+"""
+This endpoint adds one or more lawyers to a case by its ID.
+Example: PATCH http://case/HRM-2025-0002/add-lawyers
+Request body:
+[
+        {
+            "name": "Lawyer One"
+        },
+        {
+            "name": "Lawyer Two"
+        }
+]
+"""
