@@ -66,3 +66,17 @@ async def get_current_user_info(current_user = Depends(get_current_user)):
     del user["hashed_password"]
     
     return user
+
+
+@router.get("/lawyer", response_model=List[UserBase],summary="Get all lawyers")
+async def get_lawyers(current_user = Depends(get_current_user)) -> List[UserBase]:
+    users_collection = await get_collection("users")
+    
+    lawyers = []
+    async for user in users_collection.find({"role": "lawyer"}):
+        user["id"] = str(user["_id"])
+        del user["_id"]
+        del user["hashed_password"]
+        lawyers.append(UserBase(**user))
+    
+    return lawyers
