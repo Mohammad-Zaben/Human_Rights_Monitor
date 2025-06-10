@@ -7,7 +7,7 @@ from app.services.id_genarator import case_generate_id
 from pydantic import ValidationError, BaseModel
 import json
 from app.auth.oauth import get_current_user
-
+import logging
 router = APIRouter(
     prefix="/case",
     tags=["Cases"],
@@ -105,6 +105,29 @@ files example:
 
 
 
+
+
+@router.get("/cases-need-lawyers", response_model=list[CaseResponse], summary="Get cases that need assigen a lawyers")
+async def get_cases_need_lawyers(current_user: str = Depends(get_current_user)):
+    #print the current user in logs
+    logging.info(f"Current user: {current_user.username}")
+    cases_collection = await get_collection("cases")
+    
+    # Find cases that have no lawyers assigned
+    query = {"$or": [{"lawyers": {"$exists": False}}, {"lawyers": []}]}
+    cases = []
+    
+    async for case in cases_collection.find(query):
+        case["_id"] = str(case["_id"])
+        cases.append(CaseResponse(**case))
+    
+    return cases
+
+
+
+
+
+
 @router.get("/{case_id}", response_model=CaseResponse, summary="Get a case by ID")
 async def get_case(case_id: str, current_user: str = Depends(get_current_user)):
     # if not current_user:
@@ -133,6 +156,7 @@ Example: GET http://127.0.0.1:8000/case/HRM-2025-0002
 async def get_all_cases(current_user: str = Depends(get_current_user)):
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing JWT token")
+    logging.info(f"Current user: {current_user.username}")
 
     cases_collection = await get_collection("cases")
     cases = []
@@ -287,16 +311,3 @@ Request body:
         }
 ]
 """
-@router.get("/cases-need-lawyers", response_model=list[CaseResponse], summary="Get cases that need assigen a lawyers")
-async def get_cases_need_lawyers(current_user: str = Depends(get_current_user)):
-    cases_collection = await get_collection("cases")
-    
-    # Find cases that have no lawyers assigned
-    query = {"lawyers": {"$exists": False}}
-    cases = []
-    
-    async for case in cases_collection.find(query):
-        case["_id"] = str(case["_id"])
-        cases.append(CaseResponse(**case))
-    
-    return cases
