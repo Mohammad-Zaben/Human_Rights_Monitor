@@ -41,6 +41,7 @@ class CaseBase(BaseModel):
     perpetrators: List[Perpetrator]
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    candidate_lawyers: Optional[List[str]] = None  # List of ObjectId as str
 
 class CaseCreate(CaseBase):
     pass  # same as CaseBase, you can customize if needed

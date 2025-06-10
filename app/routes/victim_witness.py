@@ -151,14 +151,12 @@ async def list_victims_by_case(case_id: str, current_user: str = Depends(get_cur
 Example: GET http://127.0.0.1:8000/victims/case/HRM-2025-0002/"""
 
 
-@router.get("/", summary="Get all victims/witnesses", response_model=List[VictimWitnessResponse])
-async def get_all_victims(current_user: str = Depends(get_current_user)):
+@router.get("/", response_model=list[VictimWitnessResponse], summary="List all victims/witnesses")
+async def list_victims(current_user: str = Depends(get_current_user)):
     victims_collection = await get_collection("victims")
 
-    victims_cursor = victims_collection.find()  # Fetch all victims
     victims = []
-    async for victim in victims_cursor:
-        victim["_id"] = str(victim["_id"])  # Convert `_id` to string
+    async for victim in victims_collection.find():
+        victim["_id"] = str(victim["_id"])
         victims.append(VictimWitnessResponse(**victim))
-
     return victims

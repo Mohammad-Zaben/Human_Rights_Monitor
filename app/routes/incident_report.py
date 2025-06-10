@@ -50,7 +50,7 @@ async def submit_incident_report(
 
     now = datetime.utcnow()
     report_data["created_at"] = now
-
+    report_data["created_by"] = current_user.username
     result = await reports_collection.insert_one(report_data)
     if not result.acknowledged:
         raise HTTPException(
@@ -58,6 +58,7 @@ async def submit_incident_report(
             detail="Failed to submit incident report"
         )
     report_data["_id"] = str(result.inserted_id)
+   
     return IncidentReportResponse(**report_data)
 """
 bodey example:
@@ -170,3 +171,35 @@ async def count_reports_by_violation_type(current_user: str = Depends(get_curren
 """
 request example:
 GET http://127.0.0.1:8000/report/analytics/"""
+
+
+
+@router.get("/{username}", response_model=list[IncidentReportResponse], summary="Get all reports by a specific user")
+async def get_reports_by_user(
+    username: str,
+    current_user: str = Depends(get_current_user)
+):
+    reports_collection = await get_collection("incident_reports")
+
+    # Query reports by username
+    query = {"created_by": username}
+    reports = []
+
+    async for report in reports_collection.find(query):
+        report["_id"] = str(report["_id"])
+        reports.append(IncidentReportResponse(**report))
+
+    if not reports:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No reports found for the specified user."
+        )
+
+    return reports
+
+"""
+request example:
+GET http://127.0.0.1:8000/report/<username>
+example:
+GET http://127.0.0.1:8000/report/zaben
+"""
