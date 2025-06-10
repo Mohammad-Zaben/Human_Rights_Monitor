@@ -8,6 +8,7 @@ from app.services.id_genarator import victim_witness_generate_id
 from datetime import datetime
 from pydantic import BaseModel
 import logging
+from typing import List
 
 router = APIRouter(
     prefix="/victims",
