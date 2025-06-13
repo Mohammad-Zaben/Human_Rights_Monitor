@@ -26,8 +26,12 @@ async def create_case(
 ):
 
     try:
+        # Print the incoming data for debugging
+        print("Received case_model:", case_model)
+        print("Received images:", [image.filename for image in images])
+
         case_data = json.loads(case_model)
-        case = CaseBase(**case_data)  # do the validation her ,because the pydantic with Form data does not work
+        case = CaseBase(**case_data)  # do the validation here, because the pydantic with Form data does not work
     except (json.JSONDecodeError, ValidationError) as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -35,7 +39,7 @@ async def create_case(
     images_list = []
     for image in images:
         content = await image.read()
-        id=await create_evidence(image=content)
+        id = await create_evidence(image=content)
         images_list.append(id)
 
     cases_collection = await get_collection("cases")
@@ -103,7 +107,19 @@ files example:
 - images: [image1.jpg, image2.png]
 """
 
-
+@router.get("/my-cases", response_model=list[CaseResponse], summary="Get all cases created by the current user")
+async def get_my_cases(current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+    
+    # Find cases created by the current user
+    query = {"created_by": current_user.username}
+    cases = []
+    
+    async for case in cases_collection.find(query):
+        case["_id"] = str(case["_id"])
+        cases.append(CaseResponse(**case))
+    
+    return cases
 
 
 
@@ -311,3 +327,6 @@ Request body:
         }
 ]
 """
+
+
+#get all cases based on username
