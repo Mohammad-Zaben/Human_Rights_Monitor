@@ -3,6 +3,7 @@ from typing import List, Optional, Literal
 from datetime import datetime
 from app.models.evidence import Evidence  
 from enum import Enum
+from app.models.users import Lawyer
 
 class Coordinates(BaseModel):
     type: Literal["Point"]
@@ -51,6 +52,7 @@ class CaseResponse(CaseBase):
     case_id: str
     evidence: Optional[List[str]] = None  # List of Evidence objects
     created_by: str
+    lawyers: Optional[List[Lawyer]] = None  # List of ObjectId as str
     class Config:
         allow_population_by_field_name = True
         json_encoders = {

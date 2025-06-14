@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status,Form,UploadFile,File, Depends,Query
 from app.database import get_collection
 from app.models.cases import CaseBase, CaseResponse , StatusUpdate
+from app.models.users import Lawyer
 from app.routes.evidence import create_evidence
 from datetime import datetime
 from app.services.id_genarator import case_generate_id
@@ -121,7 +122,19 @@ async def get_my_cases(current_user: str = Depends(get_current_user)):
     
     return cases
 
-
+@router.get("/lawyer/", response_model=list[CaseResponse], summary="Get all cases assigned to a lawyer")
+async def get_cases_by_lawyer(current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+    
+    # Find cases where the current user is listed as a lawyer
+    query = {"lawyers.name": current_user.username}
+    cases = []
+    
+    async for case in cases_collection.find(query):
+        case["_id"] = str(case["_id"])
+        cases.append(CaseResponse(**case))
+    
+    return cases
 
 @router.get("/cases-need-lawyers", response_model=list[CaseResponse], summary="Get cases that need assigen a lawyers")
 async def get_cases_need_lawyers(current_user: str = Depends(get_current_user)):
@@ -185,6 +198,8 @@ async def get_all_cases(current_user: str = Depends(get_current_user)):
 
 """This endpoint retrieves all cases from the database.
 Example: GET http://"""
+
+
 
 
 
@@ -287,8 +302,7 @@ The status can be one of the following: "new", "under_investigation", "resolved"
 """
 
 
-class Lawyer(BaseModel):
-    name: str
+
 
 @router.patch("/{case_id}/add-lawyers", summary="Add lawyers to a case")
 async def add_lawyer_to_case(
@@ -327,6 +341,3 @@ Request body:
         }
 ]
 """
-
-
-#get all cases based on username
