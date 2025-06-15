@@ -122,6 +122,16 @@ async def get_my_cases(current_user: str = Depends(get_current_user)):
     
     return cases
 
+
+@router.get("/total",response_model=int, summary="Get total number of cases")
+async def get_total_cases_number(current_user:str= Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+    
+    # Count the total number of cases
+    total_cases = await cases_collection.count_documents({})
+    
+    return total_cases
+
 @router.get("/lawyer/", response_model=list[CaseResponse], summary="Get all cases assigned to a lawyer")
 async def get_cases_by_lawyer(current_user: str = Depends(get_current_user)):
     cases_collection = await get_collection("cases")

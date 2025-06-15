@@ -124,6 +124,15 @@ request example:
 GET http://127.0.0.1:8000/report/?location=yemen
 """
 
+@router.get("/total",response_model=int, summary="Get total number of reports")
+async def get_total_cases_number(current_user:str= Depends(get_current_user)):
+    cases_collection = await get_collection("incident_reports")
+    
+    # Count the total number of cases
+    total_report = await cases_collection.count_documents({})
+    
+    return total_report
+
 
 
 @router.patch("/{report_id}", summary="Update report status")
