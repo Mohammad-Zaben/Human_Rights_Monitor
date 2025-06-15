@@ -132,7 +132,7 @@ async def get_total_cases_number(current_user:str= Depends(get_current_user)):
     
     return total_cases
 
-@router.get("/lawyer/", response_model=list[CaseResponse], summary="Get all cases assigned to a lawyer")
+@router.get("/lawyer", response_model=list[CaseResponse], summary="Get all cases assigned to a lawyer")
 async def get_cases_by_lawyer(current_user: str = Depends(get_current_user)):
     cases_collection = await get_collection("cases")
     
@@ -164,7 +164,29 @@ async def get_cases_need_lawyers(current_user: str = Depends(get_current_user)):
 
 
 
-
+@router.get("/monthly", response_model=list[tuple[int,int]], summary="Get number of cases created per month")
+async def get_cases_per_month(current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+    
+    # Aggregate to count cases per month
+    pipeline = [
+        {
+            "$group": {
+                "_id": {"$dateToString": {"format": "%Y-%m", "date": "$created_at"}},
+                "count": {"$sum": 1}
+            }
+        },
+        {
+            "$sort": {"_id": 1}  # Sort by month
+        }
+    ]
+    
+    results = await cases_collection.aggregate(pipeline).to_list(length=None)
+    
+    # Convert results to a list of tuples (month, count)
+    monthly_counts = [(int(result["_id"].split("-")[1]), result["count"]) for result in results]
+    
+    return monthly_counts
 
 
 @router.get("/{case_id}", response_model=CaseResponse, summary="Get a case by ID")

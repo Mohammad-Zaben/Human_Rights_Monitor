@@ -135,6 +135,31 @@ async def get_total_cases_number(current_user:str= Depends(get_current_user)):
 
 
 
+
+@router.get("/monthly", response_model=list[tuple[int,int]], summary="Get number of reports created per month")
+async def get_cases_per_month(current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("incident_reports")
+    
+    # Aggregate to count cases per month
+    pipeline = [
+        {
+            "$group": {
+                "_id": {"$dateToString": {"format": "%Y-%m", "date": "$created_at"}},
+                "count": {"$sum": 1}
+            }
+        },
+        {
+            "$sort": {"_id": 1}  # Sort by month
+        }
+    ]
+    
+    results = await cases_collection.aggregate(pipeline).to_list(length=None)
+    
+    # Convert results to a list of tuples (month, count)
+    monthly_counts = [(int(result["_id"].split("-")[1]), result["count"]) for result in results]
+    
+    return monthly_counts
+
 @router.patch("/{report_id}", summary="Update report status")
 async def update_report_status(
     report_id: str,
