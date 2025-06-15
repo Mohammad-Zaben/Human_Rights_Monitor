@@ -68,7 +68,7 @@ async def get_current_user_info(current_user = Depends(get_current_user)):
     return user
 
 
-@router.get("/total_lawyers",response_model=int, summary="Get total number of lawyers")
+@router.get("/lawyesr/total",response_model=int, summary="Get total number of lawyers")
 async def get_total_lawyers_number(current_user:str= Depends(get_current_user)):
     users_collection = await get_collection("users")
     
@@ -77,7 +77,7 @@ async def get_total_lawyers_number(current_user:str= Depends(get_current_user)):
     
     return total_lawyers
 
-@router.get("/total_organizations",response_model=int, summary="Get total number of organizations")
+@router.get("/organizations/total",response_model=int, summary="Get total number of organizations")
 async def get_total_organizations_number(current_user:str= Depends(get_current_user)):
     users_collection = await get_collection("users")
     
