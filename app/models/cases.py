@@ -68,4 +68,4 @@ class CaseStatusHistory(BaseModel):
 
 
 class StatusUpdate(BaseModel):
-    new_status: CaseStatus
+    new_status: str

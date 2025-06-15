@@ -134,6 +134,27 @@ async def get_total_cases_number(current_user:str= Depends(get_current_user)):
     return total_report
 
 
+@router.get("/this-month", response_model=int, summary="Get number of reports submitted this month")
+async def get_reports_submitted_this_month(current_user: str = Depends(get_current_user)):
+    reports_collection = await get_collection("incident_reports")
+
+    now = datetime.utcnow()
+    start_of_month = datetime(now.year, now.month, 1)
+
+    if now.month == 12:
+        next_month = datetime(now.year + 1, 1, 1)
+    else:
+        next_month = datetime(now.year, now.month + 1, 1)
+
+    query = {
+        "created_at": {
+            "$gte": start_of_month,
+            "$lt": next_month
+        }
+    }
+
+    total = await reports_collection.count_documents(query)
+    return total
 
 
 @router.get("/monthly", response_model=list[tuple[int,int]], summary="Get number of reports created per month")

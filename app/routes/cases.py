@@ -122,6 +122,30 @@ async def get_my_cases(current_user: str = Depends(get_current_user)):
     
     return cases
 
+@router.get("/this-month", response_model=int, summary="Get number of cases submitted this month")
+async def get_cases_submitted_this_month(current_user: str = Depends(get_current_user)):
+    cases_collection = await get_collection("cases")
+
+    # Get the start of the current month (UTC)
+    now = datetime.utcnow()
+    start_of_month = datetime(now.year, now.month, 1)
+
+    # Get the first day of the next month
+    if now.month == 12:
+        next_month = datetime(now.year + 1, 1, 1)
+    else:
+        next_month = datetime(now.year, now.month + 1, 1)
+
+    # Query cases created between start_of_month and next_month
+    query = {
+        "created_at": {
+            "$gte": start_of_month,
+            "$lt": next_month
+        }
+    }
+
+    total = await cases_collection.count_documents(query)
+    return total
 
 @router.get("/total",response_model=int, summary="Get total number of cases")
 async def get_total_cases_number(current_user:str= Depends(get_current_user)):
