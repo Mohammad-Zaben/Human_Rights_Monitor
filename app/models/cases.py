@@ -22,7 +22,7 @@ class Perpetrator(BaseModel):
 class CaseStatus(str,Enum):
     UNDER_INVESTIGATION = "under_investigation"
     CLOSED = "closed"
-    ESCALATED = "escalated"
+    Escalated = "escalated"
 
 class PriorityLevel(Enum):
     LOW = "low"
