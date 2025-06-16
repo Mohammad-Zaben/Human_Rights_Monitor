@@ -32,6 +32,16 @@ async def submit_incident_report(
     try:
         report_data = json.loads(report_model)
         report = IncidentReportCreate(**report_data)  # Validate using Pydantic
+
+        # Validate file types
+        allowed_types = {"image/jpeg", "image/png", "image/jpg", "application/pdf"}
+        for image in images:
+            if image.content_type not in allowed_types:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported file type: {image.content_type}. Allowed types are: {', '.join(allowed_types)}"
+                )
+
     except (json.JSONDecodeError, ValidationError) as e:
         raise HTTPException(status_code=422, detail=str(e))
 
