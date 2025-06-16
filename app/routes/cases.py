@@ -31,6 +31,15 @@ async def create_case(
         print("Received case_model:", case_model)
         print("Received images:", [image.filename for image in images])
 
+        # Validate file types
+        allowed_types = {"image/jpeg", "image/png", "image/jpg", "application/pdf"}
+        for image in images:
+            if image.content_type not in allowed_types:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported file type: {image.content_type}. Allowed types are: {', '.join(allowed_types)}"
+                )
+
         case_data = json.loads(case_model)
         case = CaseBase(**case_data)  # do the validation here, because the pydantic with Form data does not work
     except (json.JSONDecodeError, ValidationError) as e:
