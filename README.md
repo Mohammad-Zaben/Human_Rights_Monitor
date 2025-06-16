@@ -12,14 +12,30 @@ The backend exposes a set of RESTful endpoints to interact with different resour
 
 Each endpoint is designed to provide clean access to the corresponding data, supporting full CRUD operations, filtering, and validation where needed.
 
+## 👥 User Roles
+
+The system supports multiple user roles, each with different permissions and responsibilities:
+
+- **User** – Regular user who can submit and track incidents.  
+- **Lawyer** – Can provide legal follow-up and handle assigned cases.  
+- **Organization** – Human rights organization with access to broader cases.  
+- **Admin** – Full access to manage users, incidents, cases, and platform settings.
+
+## 🧑‍💻 Tech Stack
+
+- **FastAPI** for building high-performance APIs
+- **MongoDB** as the primary NoSQL database
+- **Pydantic** for data validation
+- **Uvicorn** as the ASGI server
+
 ## ⚙️ Setup and Running the Project
 
 To run the project locally, follow these steps:
 
 1. **Clone the repository:**
 ```bash
-git clone <your-repo-url>
-cd <repo-folder>
+git clone https://github.com/Mohammad-Zaben/Human_Rights_Monitor.git
+cd Human_Rights_Monitor
 ```
 
 2. **Create and activate a virtual environment:**
@@ -43,7 +59,7 @@ pip install -r requirements.txt
 
 4. **Run the FastAPI app using Uvicorn:**
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 The server will start at:  
@@ -71,9 +87,8 @@ project/
 
 ## 🛡️ Notes
 
-- Ensure any required environment variables (like database URLs, secrets) are configured properly.
 - The backend is modular and easily extendable.
 
 ## 📞 Contact
 
-For inquiries, suggestions, or contributions, feel free to contact the maintainer.
+For inquiries, suggestions, or contributions, feel free to contact me
