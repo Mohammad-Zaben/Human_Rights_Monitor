@@ -46,8 +46,6 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-> ⚠️ Replace `main:app` with the actual import path to your FastAPI `app` instance if it's different.
-
 The server will start at:  
 **http://127.0.0.1:8000**
 
@@ -55,15 +53,17 @@ The server will start at:
 - Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-## 📁 Example Project Structure
+## 📁 Project Structure
 
 ```
 project/
 ├── app/
 │   ├── main.py
+|   ├── auth/
 │   ├── models/
 │   ├── routes/
 │   ├── services/
+|   ├── config.py
 │   └── database.py
 ├── requirements.txt
 └── README.md
