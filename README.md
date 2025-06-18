@@ -30,6 +30,8 @@ The system supports multiple user roles, each with different permissions and res
 
 ## ⚙️ Setup and Running the Project
 
+ Frontend repository: [https://github.com/Amer-Daghlis/Front-we](https://github.com/Amer-Daghlis/Front-we)
+
 To run the project locally, follow these steps:
 
 1. **Clone the repository:**
